@@ -8,29 +8,40 @@ var questionNumber = 0;
 var progress = 0;
 var answer = "";
 var resetFlag = false;
+var continueFlag = true;
 
 $(document).ready(main);
 function main() {
   init();
-  //Enable answer clicks
+  /*Enable answer clicks
+  The first answer field also serves as the result field which will reset
+  the questions when pressed.
+  */
   $("#answer1").click(function() {
+    //Reset to the first question if true
     if (resetFlag===true) {
       askQuestions();
       resetFlag = false;
     } else {
-    checkAnswer($("#answer1").html());
+      if (continueFlag===true && resetFlag===false) {
+        checkAnswer($("#answer1").html());
+      }
     }
   });
   $("#answer2").click(function() {
-    checkAnswer($("#answer2").html());
+    if (continueFlag===true && resetFlag===false) {
+      checkAnswer($("#answer2").html());
+    }
   });
   $("#answer3").click(function() {
-    checkAnswer($("#answer3").html());
+    if (continueFlag===true && resetFlag===false) {
+      checkAnswer($("#answer3").html());
+    }
   });
   $("#selectionresponse").click(function() {
-    askQuestions();
+      askQuestions();
   });
-}
+  }
 
 function init() {
   var question1 = new loadQuestion(
@@ -70,7 +81,7 @@ function init() {
   );
 
   questionBank = [question1, question2, question3, question4, question5];
-    askQuestions();
+  askQuestions();
 }
 
 function askQuestions() {
@@ -83,6 +94,7 @@ function askQuestions() {
     $("#answer3").html(questionBank[questionNumber].answer3);
     $("#selectionresponse").empty();
   }
+  continueFlag = true;
 }
 function loadQuestion(question, answer1, answer2, answer3, correctAn) {
   this.question = question;
@@ -93,9 +105,6 @@ function loadQuestion(question, answer1, answer2, answer3, correctAn) {
 }
 
 function checkAnswer(answer) {
-  if (resetFlag === true) {
-    return;
-  }
   this.answer = answer;
   if (answer === questionBank[questionNumber].correctAn) {
     correctAnswers++;
@@ -103,12 +112,16 @@ function checkAnswer(answer) {
   } else {
     $("#selectionresponse").html("Incorrect answer. The correct answer is: " + questionBank[questionNumber].correctAn);
   }
+  /*Setup to display the next question, set flags to prevent the answer clicks
+  from continuing to build the next question.
+  */
   progress++;
   questionNumber++;
-  askQuestions();
+  continueFlag = false;
 }
 
 function displayResults() {
+  //Display the results of the quiz.
   setBackground();
   clearFields();
   $("#question").html("You answered " + correctAnswers + " correct out of " +
@@ -125,12 +138,14 @@ function displayResults() {
 }
 
 function setBackground() {
+  //Reset the background when the quiz is reset.
   document.body.style.backgroundImage = 'url(assets/images/allsports.jpg)';
   document.body.style.backgroundRepeat = "no-repeat";
   document.body.style.backgroundSize = "cover";
 }
 
 function clearFields() {
+  //Clear the question and answer fields.
   progress = 0;
   questionNumber = 0;
   $("#question").empty();
